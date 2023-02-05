@@ -1,0 +1,22 @@
+{
+  "name": "djs-template",
+  "version": "1.0.0",
+  "description": "Template repository to quickstart developing discord bots usind discord.js v14.",
+  "main": "src/index.ts",
+  "type": "module",
+  "repository": "https://github.com/defnot001/djs-template",
+  "author": "defnot001",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.7.1",
+    "djs-handlers": "^1.0.3",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
