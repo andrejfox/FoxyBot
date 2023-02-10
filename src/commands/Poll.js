@@ -1,6 +1,12 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { Command } from "djs-handlers";
 import { EmbbColourFootter } from "../struct/EmbbColourFootter.js";
+import { errEmbbColour } from "../struct/ErrEmbbColour.js";
+import { config } from "../config/config.js";
+
+function stringWithOnlyNumbers(str) {
+  return /^\d+$/.test(str);
+}
 
 export default new Command({
   name: "poll",
@@ -41,21 +47,45 @@ export default new Command({
     const answers = args.getString("answers");
 
     if (!question || !answerType) {
-      return interaction.reply("Please specify a question and an answer type!");
+      return interaction.reply({
+        embeds: [
+          new errEmbbColour(interaction.user, {
+            title: "Please specify a question and an answer type!",
+          }),
+        ],
+      });
     }
 
     question = !question.endsWith("?") ? question + "?" : question;
 
     if (answerType === "yesno") {
-      const yesEmote = interaction.client.emojis.cache.get(
-        "1069199931476279316" //<- only the id here (just the numbers)
-      );
-      const noEmote = interaction.client.emojis.cache.get(
-        "1069199934139682836" //<- only the id here (just the numbers)
-      );
+      let yesEmote;
+      let noEmote;
+
+      if (config.pollYes === "0") {
+        yesEmote = "⭕";
+      } else if (config.pollYes != Number) {
+        yesEmote = config.pollYes;
+      } else {
+        yesEmote = interaction.client.emojis.cache.get(config.pollYes);
+      }
+
+      if (config.pollNo === "0") {
+        noEmote = "❌";
+      } else if (config.pollYes != Number) {
+        noEmote = config.pollNo;
+      } else {
+        noEmote = interaction.client.emojis.cache.get(config.pollNo);
+      }
 
       if (!yesEmote || !noEmote) {
-        interaction.reply("Cannot find emojis!");
+        return interaction.reply({
+          embeds: [
+            new errEmbbColour(interaction.user, {
+              title: "Cannot find emojis!",
+            }),
+          ],
+        });
       } else {
         const pollEmbed = new EmbbColourFootter(interaction.user, {
           title: question,
@@ -71,10 +101,16 @@ export default new Command({
       }
     } else {
       if (!answers) {
-        return interaction.reply("Please specify answers!");
+        return interaction.reply({
+          embeds: [
+            new errEmbbColour(interaction.user, {
+              title: "Please specify answers!",
+            }),
+          ],
+        });
       }
 
-      const emojiArr = [
+      let emojiArr = [
         "1️⃣",
         "2️⃣",
         "3️⃣",
@@ -87,6 +123,24 @@ export default new Command({
         "🔟",
       ];
 
+      emojiArr.forEach((emoji, index) => {
+        const pollNum = "poll" + index;
+
+        if (config[pollNum] === "0") {
+          return;
+        } else if (typeof config[pollNum] !== "string") {
+          console.log(
+            `poll${index} is not a string! located in /src/config/config.js`
+          );
+        } else if (stringWithOnlyNumbers(config[pollNum])) {
+          return (emojiArr[index] = interaction.client.emojis.cache.get(
+            config[pollNum]
+          ));
+        } else {
+          return (emojiArr[index] = config[pollNum]);
+        }
+      });
+
       const fields = answers.split(",").map((answer, index) => {
         return {
           name: `${emojiArr[index]}  |  ${answer.trim()}`,
@@ -95,7 +149,13 @@ export default new Command({
       });
 
       if (fields.length > 10) {
-        return interaction.reply("You can only have 10 answers max!");
+        return interaction.reply({
+          embeds: [
+            new errEmbbColour(interaction.user, {
+              title: "You can only have 10 answers max!",
+            }),
+          ],
+        });
       }
 
       const pollEmbed = new EmbbColourFootter(interaction.user, {

@@ -1,4 +1,4 @@
-import { GatewayIntentBits, Partials } from "discord.js";
+import { GatewayIntentBits } from "discord.js";
 import { ExtendedClient } from "djs-handlers";
 import { config } from "./config/config.js";
 import { projectPaths } from "./util/projectPaths.js";
@@ -11,7 +11,6 @@ export const client = new ExtendedClient({
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildEmojisAndStickers,
   ],
-  partials: [Partials.GuildMember],
 });
 
 client.start({
