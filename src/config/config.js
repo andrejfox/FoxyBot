@@ -9,7 +9,6 @@ const envVariables = {
 
   //general
   mainEmbedColour: 0x000000, //the hex value of the default Embed colour (note! only change what comes after 0x)
-  erorEmbedColour: 0xff0000, //the hex value of the default Eror Embed colour (note! only change what comes after 0x)
 
   //join
   joinRolle: "0", //add join role id (just the numbers) ["0" = off]

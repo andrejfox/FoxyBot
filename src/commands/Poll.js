@@ -1,12 +1,7 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { Command } from "djs-handlers";
 import { EmbbColourFootter } from "../struct/EmbbColourFootter.js";
-import { errEmbbColour } from "../struct/ErrEmbbColour.js";
 import { config } from "../config/config.js";
-
-function stringWithOnlyNumbers(str) {
-  return /^\d+$/.test(str);
-}
 
 export default new Command({
   name: "poll",
@@ -48,11 +43,8 @@ export default new Command({
 
     if (!question || !answerType) {
       return interaction.reply({
-        embeds: [
-          new errEmbbColour(interaction.user, {
-            title: "Please specify a question and an answer type!",
-          }),
-        ],
+        content: "Please specify a question and an answer type!",
+        ephemeral: true,
       });
     }
 
@@ -80,11 +72,8 @@ export default new Command({
 
       if (!yesEmote || !noEmote) {
         return interaction.reply({
-          embeds: [
-            new errEmbbColour(interaction.user, {
-              title: "Cannot find emojis!",
-            }),
-          ],
+          content: "Cannot find emojis!",
+          ephemeral: true,
         });
       } else {
         const pollEmbed = new EmbbColourFootter(interaction.user, {
@@ -102,11 +91,8 @@ export default new Command({
     } else {
       if (!answers) {
         return interaction.reply({
-          embeds: [
-            new errEmbbColour(interaction.user, {
-              title: "Please specify answers!",
-            }),
-          ],
+          content: "Please specify answers!",
+          ephemeral: true,
         });
       }
 
@@ -125,6 +111,10 @@ export default new Command({
 
       emojiArr.forEach((emoji, index) => {
         const pollNum = "poll" + index;
+
+        function stringWithOnlyNumbers(str) {
+          return /^\d+$/.test(str);
+        }
 
         if (config[pollNum] === "0") {
           return;
@@ -150,11 +140,8 @@ export default new Command({
 
       if (fields.length > 10) {
         return interaction.reply({
-          embeds: [
-            new errEmbbColour(interaction.user, {
-              title: "You can only have 10 answers max!",
-            }),
-          ],
+          content: "You can only have 10 answers max!",
+          ephemeral: true,
         });
       }
 
