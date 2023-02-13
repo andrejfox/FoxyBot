@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import { config } from "../config/config.js";
 
-export class EmbbColourFootter extends EmbedBuilder {
+export class ExtendedEmbedBuilder extends EmbedBuilder {
   constructor(user, data) {
     super(data);
 
