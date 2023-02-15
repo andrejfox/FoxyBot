@@ -27,14 +27,8 @@ export default new Command({
       .then(() => {
         interaction.reply({
           content: `Successfully deleted ${count} messages!`,
+          ephemeral: true,
         });
-
-        setTimeout(async () => {
-          const messages = await interaction.channel.messages.fetch({
-            limit: 1,
-          });
-          messages.forEach((messages) => messages.delete());
-        }, 1500);
       })
       .catch((err) => {
         if (

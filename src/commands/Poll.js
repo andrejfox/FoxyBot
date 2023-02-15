@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { Command } from "djs-handlers";
-import { EmbbColourFootter } from "../struct/EmbbColourFootter.js";
 import { config } from "../config/config.js";
+import { ExtendedEmbedBuilder } from "../struct/ExtendedEmbedBuilder.js";
+import { getEmojis } from "../util/helpers.js";
 
 export default new Command({
   name: "poll",
@@ -39,7 +40,6 @@ export default new Command({
   execute: async ({ interaction, args }) => {
     let question = args.getString("question");
     const answerType = args.getString("type");
-    const answers = args.getString("answers");
 
     if (!question || !answerType) {
       return interaction.reply({
@@ -51,44 +51,34 @@ export default new Command({
     question = !question.endsWith("?") ? question + "?" : question;
 
     if (answerType === "yesno") {
-      let yesEmote;
-      let noEmote;
+      const emotes = getEmojis(config.pollYesNo, interaction.client);
 
-      if (config.pollYes === "0") {
-        yesEmote = "⭕";
-      } else if (config.pollYes != Number) {
-        yesEmote = config.pollYes;
-      } else {
-        yesEmote = interaction.client.emojis.cache.get(config.pollYes);
+      const pollEmbed = new ExtendedEmbedBuilder(interaction.user, {
+        title: question,
+      });
+
+      for (const emoji of emotes) {
+        if (!emoji) {
+          interaction.reply({
+            content: "Cannot find emojis!",
+            ephemeral: true,
+          });
+
+          return;
+        }
       }
 
-      if (config.pollNo === "0") {
-        noEmote = "❌";
-      } else if (config.pollYes != Number) {
-        noEmote = config.pollNo;
-      } else {
-        noEmote = interaction.client.emojis.cache.get(config.pollNo);
-      }
+      const message = await interaction.reply({
+        embeds: [pollEmbed],
+        fetchReply: true,
+      });
 
-      if (!yesEmote || !noEmote) {
-        return interaction.reply({
-          content: "Cannot find emojis!",
-          ephemeral: true,
-        });
-      } else {
-        const pollEmbed = new EmbbColourFootter(interaction.user, {
-          title: question,
-        });
-
-        const message = await interaction.reply({
-          embeds: [pollEmbed],
-          fetchReply: true,
-        });
-
-        await message.react(yesEmote);
-        return message.react(noEmote);
+      for (const emoji of emotes) {
+        message.react(emoji);
       }
     } else {
+      const answers = args.getString("answers");
+
       if (!answers) {
         return interaction.reply({
           content: "Please specify answers!",
@@ -96,44 +86,11 @@ export default new Command({
         });
       }
 
-      let emojiArr = [
-        "1️⃣",
-        "2️⃣",
-        "3️⃣",
-        "4️⃣",
-        "5️⃣",
-        "6️⃣",
-        "7️⃣",
-        "8️⃣",
-        "9️⃣",
-        "🔟",
-      ];
-
-      emojiArr.forEach((emoji, index) => {
-        const pollNum = "poll" + index;
-
-        function stringWithOnlyNumbers(str) {
-          return /^\d+$/.test(str);
-        }
-
-        if (config[pollNum] === "0") {
-          return;
-        } else if (typeof config[pollNum] !== "string") {
-          console.log(
-            `poll${index} is not a string! located in /src/config/config.js`
-          );
-        } else if (stringWithOnlyNumbers(config[pollNum])) {
-          return (emojiArr[index] = interaction.client.emojis.cache.get(
-            config[pollNum]
-          ));
-        } else {
-          return (emojiArr[index] = config[pollNum]);
-        }
-      });
+      const emotes = getEmojis(config.pollNumbers, interaction.client);
 
       const fields = answers.split(",").map((answer, index) => {
         return {
-          name: `${emojiArr[index]}  |  ${answer.trim()}`,
+          name: `${emotes[index]}  ${answer.trim()}`,
           value: "\u200b",
         };
       });
@@ -145,7 +102,7 @@ export default new Command({
         });
       }
 
-      const pollEmbed = new EmbbColourFootter(interaction.user, {
+      const pollEmbed = new ExtendedEmbedBuilder(interaction.user, {
         title: question,
         fields,
       });
@@ -156,9 +113,7 @@ export default new Command({
       });
 
       for (let i = 0; i < fields.length; i++) {
-        const emoji = emojiArr[i];
-        if (!emoji) break;
-        await message.react(emoji);
+        message.react(emotes[i]);
       }
 
       return;
