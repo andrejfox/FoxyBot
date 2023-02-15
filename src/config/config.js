@@ -11,7 +11,7 @@ const envVariables = {
   guildID: process.env.GUILD_ID,
   mainEmbedColour: 0x000000, //the hex value of the default Embed colour (note! only change what comes after 0x)
   autoJoinRole: false, //add join role id [false = off]
-  activityStatus: [0, "your mom!"], //add a custom status to the bot | false = off | status type options: {Playing [0], Streaming[1], Listening[2], Watching[3], Competing[5]}
+  activityStatus: [false, "your mom!"], //add a custom status to the bot | false = off | status type options: {Playing [0], Streaming[1], Listening[2], Watching[3], Competing[5]}
   pollYesNo: ["⭕", "❌"],
   pollNumbers: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"],
 };
