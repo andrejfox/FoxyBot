@@ -21,7 +21,4 @@ export default new Event("ready", (client) => {
   client.user.setActivity(config.activityStatus[1], {
     type: config.activityStatus[0],
   });
-  console.log(
-    `Set the activity status to: Type[${config.activityStatus[0]}] | Content[${config.activityStatus[1]}]`
-  );
 });
