@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 /**
- * you can change the emojis in the array to whatever you want (unicode, custom ID,)
+ * you can change the emojis in the array to whatever you want (unicode or custom ID)
  */
 const envVariables = {
   botToken: process.env.BOT_TOKEN,
