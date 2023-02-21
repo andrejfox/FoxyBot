@@ -14,7 +14,7 @@ export const client = new ExtendedClient({
 
 client.start({
   botToken: config.botToken,
-  guildID: config.guildID, //config.guildID or global
+  guildID: config.guildID,
   commandsPath: config.commandsPath,
   eventsPath: config.eventsPath,
   globalCommands: false,
