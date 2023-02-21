@@ -35,7 +35,10 @@ export default new Command({
           err.rawError.message ===
           "You can only bulk delete messages that are under 14 days old."
         ) {
-          interaction.reply(err.rawError.message);
+          interaction.reply({
+            content: err.rawError.message,
+            ephemeral: true,
+          });
         } else {
           console.error(err);
           interaction.reply({
