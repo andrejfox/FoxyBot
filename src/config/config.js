@@ -9,6 +9,8 @@ const envVariables = {
   botToken: process.env.BOT_TOKEN,
   clientID: process.env.CLIENT_ID,
   guildID: process.env.GUILD_ID,
+  eventsPath: process.env.EVENTS_PATH,
+  commandsPath: process.env.COMMANDS_PATH,
   mainEmbedColour: 0x000000, //the hex value of the default Embed colour (note! only change what comes after 0x)
   joinLeaveLog: false, //the id of the log chanel (make sure it's a string) [false = off]
   autoJoinRole: false, //add join role id [false = off]

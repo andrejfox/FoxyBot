@@ -1,7 +1,6 @@
 import { GatewayIntentBits } from "discord.js";
 import { ExtendedClient } from "djs-handlers";
 import { config } from "./config/config.js";
-import { projectPaths } from "./util/projectPaths.js";
 
 export const client = new ExtendedClient({
   intents: [
@@ -15,9 +14,9 @@ export const client = new ExtendedClient({
 
 client.start({
   botToken: config.botToken,
-  guildID: config.guildID, //global or config.guildID
-  commandsPath: projectPaths.commands,
-  eventsPath: projectPaths.events,
+  guildID: config.guildID, //config.guildID or global
+  commandsPath: config.commandsPath,
+  eventsPath: config.eventsPath,
   globalCommands: false,
   registerCommands: true,
   type: "module",
