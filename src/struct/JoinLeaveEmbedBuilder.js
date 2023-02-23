@@ -11,7 +11,7 @@ export class JoinLeaveEmbedBuilder extends EmbedBuilder {
     });
 
     this.setFooter({
-      text: `User ${action}`,
+      text: `${action}`,
     });
 
     this.setColor(config.mainEmbedColour);

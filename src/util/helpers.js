@@ -26,7 +26,7 @@ export async function getTextChannelFromID(guild, channelID) {
 
 export function getJoinedAtComponent(member) {
   return member.joinedAt
-    ? `\nJoined at: ${time(member.joinedAt, "f")} (${time(
+    ? `\n**Joined on:** ${time(member.joinedAt, "f")} (${time(
         member.joinedAt,
         "R"
       )})`

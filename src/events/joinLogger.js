@@ -1,6 +1,6 @@
 import { Event } from "djs-handlers";
 import { config } from "../config/config.js";
-import { userMention, inlineCode, time } from "discord.js";
+import { inlineCode, time } from "discord.js";
 import { JoinLeaveEmbedBuilder } from "../struct/JoinLeaveEmbedBuilder.js";
 import { getTextChannelFromID, getJoinedAtComponent } from "../util/helpers.js";
 
@@ -19,14 +19,15 @@ export default new Event("guildMemberAdd", async (member) => {
 
   const joinedAt = getJoinedAtComponent(member);
 
-  const joinLeaveEmbed = new JoinLeaveEmbedBuilder(member, "joined", {
-    description: `Username: ${userMention(
+  const joinLeaveEmbed = new JoinLeaveEmbedBuilder(member, "Joined", {
+    description: `**User ID:** ${inlineCode(
       member.user.id
-    )}\nUser ID: ${inlineCode(member.user.id)}${joinedAt}\nCreated at: ${time(
+    )}${joinedAt}\n**Created on:** ${time(member.user.createdAt, "f")} (${time(
       member.user.createdAt,
-      "f"
-    )} (${time(member.user.createdAt, "R")})`,
+      "R"
+    )})`,
   });
+  joinLeaveEmbed.setColor(0x1fad0c);
 
   memberLog.send({ embeds: [joinLeaveEmbed] });
 });
