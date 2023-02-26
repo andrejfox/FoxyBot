@@ -1,16 +1,11 @@
-import { Event } from "djs-handlers";
-import { config } from "../config/config.js";
-import { inlineCode, time, AuditLogEvent } from "discord.js";
 import { JoinLeaveEmbedBuilder } from "../struct/JoinLeaveEmbedBuilder.js";
 import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
+import { inlineCode, time, AuditLogEvent } from "discord.js";
 import { getTextChannelFromID } from "../util/helpers.js";
+import { config } from "../config/config.js";
+import { Event } from "djs-handlers";
 
 export default new Event("guildMemberRemove", async (member) => {
-  const leaveKickLog = await getTextChannelFromID(
-    member.guild,
-    config.joinLeaveLog
-  );
-
   const fetchedLogs = await member.guild.fetchAuditLogs({
     limit: 1,
     type: AuditLogEvent.MemberKick,
@@ -33,6 +28,13 @@ export default new Event("guildMemberRemove", async (member) => {
   if (target.id === member.user.id) {
     console.log(`${member.user.tag} was kicked from ${member.guild.name}.`);
 
+    if (!config.logChannel) return;
+
+    const leaveKickLog = await getTextChannelFromID(
+      member.guild,
+      config.logChannel
+    );
+
     const kickEmbed = new kickBanEmbedBuilder(
       member.user,
       executingMember,
@@ -45,9 +47,12 @@ export default new Event("guildMemberRemove", async (member) => {
     const guildname = member.guild.name;
     console.log(`${member.user.tag} has left${" " + guildname ?? ""}!`);
 
-    if (!config.joinLeaveLog) {
-      return;
-    }
+    if (!config.logChannel) return;
+
+    const leaveKickLog = await getTextChannelFromID(
+      member.guild,
+      config.logChannel
+    );
 
     const joinLeaveEmbed = new JoinLeaveEmbedBuilder(member, "left", {
       description: `**User ID:** ${inlineCode(member.user.id)}

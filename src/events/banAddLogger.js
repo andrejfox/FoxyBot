@@ -1,15 +1,10 @@
-import { Event } from "djs-handlers";
-import { AuditLogEvent } from "discord.js";
-import { config } from "../config/config.js";
-import { getTextChannelFromID } from "../util/helpers.js";
 import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
+import { getTextChannelFromID } from "../util/helpers.js";
+import { config } from "../config/config.js";
+import { AuditLogEvent } from "discord.js";
+import { Event } from "djs-handlers";
 
 export default new Event("guildBanAdd", async (guildBan) => {
-  const banLog = await getTextChannelFromID(
-    guildBan.guild,
-    config.joinLeaveLog
-  );
-
   const ban = guildBan.partial ? await guildBan.fetch() : guildBan;
 
   console.log(`${ban.user.tag} was banned from ${ban.guild}.`);
@@ -32,6 +27,10 @@ export default new Event("guildBanAdd", async (guildBan) => {
   }
 
   const executingMember = await ban.guild.members.fetch(executor.id);
+
+  if (!config.logChannel) return;
+
+  const banLog = await getTextChannelFromID(guildBan.guild, config.logChannel);
 
   if (target.id === ban.user.id) {
     const banEmbed = new kickBanEmbedBuilder(

@@ -12,9 +12,9 @@ const envVariables = {
   eventsPath: process.env.EVENTS_PATH,
   commandsPath: process.env.COMMANDS_PATH,
   mainEmbedColour: 0x000000, //default Embed colour (note! only change what comes after 0x)
-  joinLeaveLog: false, //log chanel id (make sure it's a string) [false = off]
+  logChannel: false, //log chanel id (make sure it's a string) [false = off]
   autoJoinRole: false, //join role id [false = off]
-  activityStatus: [3, "your mom!"], //custom activity status (Playing [0], Streaming[1], Listening[2], Watching[3], Competing[5]) [false = off]
+  activityStatus: [3, "your mom 🗿😱👌"], //custom activity status (Playing [0], Streaming[1], Listening[2], Watching[3], Competing[5]) [false = off]
   pollYesNo: ["⭕", "❌"],
   pollNumbers: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"],
 };

@@ -1,5 +1,5 @@
-import { Event } from "djs-handlers";
 import { config } from "../config/config.js";
+import { Event } from "djs-handlers";
 
 export default new Event("guildMemberAdd", (member) => {
   if (!config.autoJoinRole) return;
