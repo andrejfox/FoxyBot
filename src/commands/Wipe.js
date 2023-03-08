@@ -7,8 +7,8 @@ import {
 import { Command } from "djs-handlers";
 
 export default new Command({
-  name: "nuke",
-  description: "Deletes and recreates a chanel.",
+  name: "wipe",
+  description: "Wipes the whole channel.",
   execute: async ({ interaction }) => {
     const buttons = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -35,7 +35,7 @@ export default new Command({
     collector.on("collect", async (i) => {
       if (i.customId === "no") {
         await i.update({
-          content: "Nuke was aborted.",
+          content: "Wipe was aborted.",
           components: [],
         });
         return;
@@ -50,7 +50,7 @@ export default new Command({
         }
 
         await i.update({
-          content: `BOOOOOM!`,
+          content: `Channel is beeing wiped.`,
           components: [],
         });
 
