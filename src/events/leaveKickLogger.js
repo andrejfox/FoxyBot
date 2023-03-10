@@ -1,72 +1,95 @@
+import { AuditLogEvent, inlineCode, time, userMention } from "discord.js";
+import { Event } from "djs-handlers";
+import { config } from "../config/config.js";
 import { JoinLeaveEmbedBuilder } from "../struct/JoinLeaveEmbedBuilder.js";
 import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
-import { inlineCode, time, AuditLogEvent } from "discord.js";
 import { getTextChannelFromID } from "../util/helpers.js";
-import { config } from "../config/config.js";
-import { Event } from "djs-handlers";
 
 export default new Event("guildMemberRemove", async (member) => {
-  const fetchedLogs = await member.guild.fetchAuditLogs({
-    limit: 1,
-    type: AuditLogEvent.MemberKick,
-  });
+  try {
+    console.log(`${member.user.tag} has left ${member.guild.name}!`);
 
-  const kickLog = fetchedLogs.entries.first();
+    const joinedAt = member.joinedAt
+      ? `\nJoined at: ${time(member.joinedAt, "f")} (${time(
+          member.joinedAt,
+          "R"
+        )})`
+      : "\u200b";
 
-  if (!kickLog) {
-    throw new Error("Cannot find kickLog.");
-  }
+    if (config.logChannel) {
+      const memberLog = await getTextChannelFromID(
+        member.guild,
+        config.logChannel
+      );
 
-  const { executor, target, action, reason } = kickLog;
+      if (!memberLog) {
+        return console.error("Cannot find Log Channel.");
+      }
 
-  if (!executor || !target || action !== AuditLogEvent.MemberKick) {
-    throw new Error("Cannot find executor or target from the Audit Log.");
-  }
+      const embed = new JoinLeaveEmbedBuilder(member, "left", {
+        description: `Username: ${userMention(
+          member.user.id
+        )}\nUser ID: ${inlineCode(member.user.id)}${joinedAt}\nLeft at: ${time(
+          new Date(),
+          "f"
+        )} (${time(new Date(), "R")})`,
+        color: 0x106dc9,
+      });
 
-  const executingMember = await member.guild.members.fetch(executor.id);
+      await memberLog.send({ embeds: [embed] });
+    }
 
-  if (target.id === member.user.id) {
+    const fetchedLogs = await member.guild.fetchAuditLogs({
+      limit: 1,
+      type: AuditLogEvent.MemberKick,
+    });
+
+    const kickLog = fetchedLogs.entries.first();
+
+    if (!kickLog) return;
+
+    const { executor, target, action, reason } = kickLog;
+
+    if (!executor || !target || action !== AuditLogEvent.MemberKick) {
+      return console.error(
+        "Cannot find executor or target from the Audit Log."
+      );
+    }
+
+    const executingMember = await member.guild.members.fetch(executor.id);
+
+    if (target.id !== member.user.id) {
+      return console.error(
+        "The IDs of the target in the AuditLog and the target from the Event did not match."
+      );
+    }
+
     console.log(`${member.user.tag} was kicked from ${member.guild.name}.`);
 
-    if (!config.logChannel) return;
+    if (config.logChannel) {
+      const memberLog = await getTextChannelFromID(
+        member.guild,
+        config.logChannel
+      );
 
-    const leaveKickLog = await getTextChannelFromID(
-      member.guild,
-      config.logChannel
+      if (!memberLog) {
+        return console.error("Cannot find Log Channel.");
+      }
+
+      const embed = new kickBanEmbedBuilder(
+        member.user,
+        executingMember,
+        "kick",
+        reason
+      );
+
+      kickBanEmbedBuilder.setColor(0x106dc9);
+
+      await memberLog.send({ embeds: [embed] });
+    }
+  } catch (err) {
+    console.error(
+      `Something went wrong trying to log a user leaving or being kicked: ${err}`
     );
-
-    const kickEmbed = new kickBanEmbedBuilder(
-      member.user,
-      executingMember,
-      "kick",
-      reason
-    );
-
-    leaveKickLog.send({ embeds: [kickEmbed] });
-  } else {
-    const guildname = member.guild.name;
-    console.log(`${member.user.tag} has left${" " + guildname ?? ""}!`);
-
-    if (!config.logChannel) return;
-
-    const leaveKickLog = await getTextChannelFromID(
-      member.guild,
-      config.logChannel
-    );
-
-    const joinLeaveEmbed = new JoinLeaveEmbedBuilder(member, "left", {
-      description: `**User ID:** ${inlineCode(member.user.id)}
-      **Left at:** ${time(Math.floor(Date.now() / 1000), "f")} (${time(
-        Math.floor(Date.now() / 1000),
-        "R"
-      )})
-      **Created at:** ${time(member.user.createdAt, "f")} (${time(
-        member.user.createdAt,
-        "R"
-      )})`,
-    });
-    joinLeaveEmbed.setColor(0x106dc9);
-
-    leaveKickLog.send({ embeds: [joinLeaveEmbed] });
   }
 });
