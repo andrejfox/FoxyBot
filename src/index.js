@@ -5,7 +5,7 @@ import { config } from "./config/config.js";
 export const client = new ExtendedClient({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildBans,
+    GatewayIntentBits.GuildModeration,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
