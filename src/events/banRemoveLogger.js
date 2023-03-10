@@ -1,52 +1,63 @@
-import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
-import { getTextChannelFromID } from "../util/helpers.js";
-import { config } from "../config/config.js";
 import { AuditLogEvent } from "discord.js";
 import { Event } from "djs-handlers";
+import { config } from "../config/config.js";
+import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
+import { getTextChannelFromID } from "../util/helpers.js";
 
 export default new Event("guildBanRemove", async (guildUnban) => {
-  const unban = guildUnban.partial ? await guildUnban.fetch() : guildUnban;
+  try {
+    console.log(
+      `${guildUnban.user.tag}'s ban was removed from ${guildUnban.user.tag}.`
+    );
 
-  console.log(`${unban.user.tag}'s ban was removed from ${unban.guild}.`);
+    if (!config.logChannel) return;
 
-  if (!config.logChannel) return;
+    const unbanLog = await getTextChannelFromID(
+      guildUnban.guild,
+      config.logChannel
+    );
 
-  const unbanLog = await getTextChannelFromID(
-    guildUnban.guild,
-    config.logChannel
-  );
+    if (!unbanLog) {
+      return console.error("Cannot find Log Channel.");
+    }
 
-  const fetchedLogs = await unban.guild.fetchAuditLogs({
-    limit: 1,
-    type: AuditLogEvent.MemberBanRemove,
-  });
+    const fetchedLogs = await guildUnban.guild.fetchAuditLogs({
+      limit: 1,
+      type: AuditLogEvent.MemberBanRemove,
+    });
 
-  const unbanAuditLog = fetchedLogs.entries.first();
+    const unbanAuditLog = fetchedLogs.entries.first();
 
-  if (!unbanAuditLog) {
-    throw new Error("Cannot find BanLog.");
-  }
+    if (!unbanAuditLog) {
+      `Cannot find audit log entry for ${guildUnban.user.tag}.`;
+    }
 
-  const { executor, target, action, reason } = unbanAuditLog;
+    const { executor, target, action } = unbanAuditLog;
 
-  if (!executor || !target || action !== AuditLogEvent.MemberBanRemove) {
-    throw new Error("Cannot find executor or target from the Audit Log.");
-  }
+    if (!executor || !target || action !== AuditLogEvent.MemberBanRemove) {
+      return console.error(
+        "Cannot find executor or target from the Audit Log."
+      );
+    }
+    const executingMember = await guildUnban.guild.members.fetch(executor.id);
 
-  const executingMember = await unban.guild.members.fetch(executor.id);
+    if (!target.id === guildUnban.user.id) {
+      return console.error(
+        "The IDs of the target in the AuditLog and the target from the Event did not match."
+      );
+    }
 
-  if (target.id === unban.user.id) {
     const unbanEmbed = new kickBanEmbedBuilder(
-      unban.user,
+      guildUnban.user,
       executingMember,
       "unban",
-      reason
+      guildUnban.reason
     );
 
     unbanLog.send({ embeds: [unbanEmbed] });
-  } else {
-    throw new Error(
-      "The IDs of the target in the AuditLog and the target from the Event did not match."
+  } catch (err) {
+    console.error(
+      `Something went wrong trying to log the unban for ${guildUnban.user.tag}: ${err}`
     );
   }
 });

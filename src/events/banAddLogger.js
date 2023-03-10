@@ -1,49 +1,62 @@
-import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
-import { getTextChannelFromID } from "../util/helpers.js";
-import { config } from "../config/config.js";
 import { AuditLogEvent } from "discord.js";
 import { Event } from "djs-handlers";
+import { config } from "../config/config.js";
+import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
+import { getTextChannelFromID } from "../util/helpers.js";
 
 export default new Event("guildBanAdd", async (guildBan) => {
-  const ban = guildBan.partial ? await guildBan.fetch() : guildBan;
+  try {
+    console.log(`${guildBan.user.tag} was banned from ${guildBan.guild}.`);
 
-  console.log(`${ban.user.tag} was banned from ${ban.guild}.`);
+    if (!config.logChannel) return;
 
-  const fetchedLogs = await ban.guild.fetchAuditLogs({
-    limit: 1,
-    type: AuditLogEvent.MemberBanAdd,
-  });
+    const banLog = await getTextChannelFromID(
+      guildBan.guild,
+      config.logChannel
+    );
 
-  const banAuditLog = fetchedLogs.entries.first();
+    if (!banLog) {
+      return console.error("Cannot find Log Channel.");
+    }
 
-  if (!banAuditLog) {
-    throw new Error("Cannot find BanLog.");
-  }
+    const fetchedLogs = await guildBan.guild.fetchAuditLogs({
+      limit: 1,
+      type: AuditLogEvent.MemberBanAdd,
+    });
 
-  const { executor, target, action, reason } = banAuditLog;
+    const banAuditLog = fetchedLogs.entries.first();
 
-  if (!executor || !target || action !== AuditLogEvent.MemberBanAdd) {
-    throw new Error("Cannot find executor or target from the Audit Log.");
-  }
+    if (!banAuditLog) {
+      return console.error(
+        `Cannot find audit log entry for ${guildBan.user.tag}.`
+      );
+    }
 
-  const executingMember = await ban.guild.members.fetch(executor.id);
+    const { executor, target, action } = banAuditLog;
 
-  if (!config.logChannel) return;
+    if (!executor || !target || action !== AuditLogEvent.MemberBanAdd) {
+      throw new Error("Cannot find executor or target from the Audit Log.");
+    }
 
-  const banLog = await getTextChannelFromID(guildBan.guild, config.logChannel);
+    const executingMember = await guildBan.guild.members.fetch(executor.id);
 
-  if (target.id === ban.user.id) {
+    if (target.id !== guildBan.user.id) {
+      return console.error(
+        "The IDs of the target in the AuditLog and the target from the Event did not match."
+      );
+    }
+
     const banEmbed = new kickBanEmbedBuilder(
-      ban.user,
+      guildBan.user,
       executingMember,
       "ban",
-      reason
+      guildBan.reason
     );
 
     banLog.send({ embeds: [banEmbed] });
-  } else {
-    throw new Error(
-      "The IDs of the target in the AuditLog and the target from the Event did not match."
+  } catch (err) {
+    console.error(
+      `Something went wrong trying to log the ban for ${guildBan.user.tag}: ${err}`
     );
   }
 });

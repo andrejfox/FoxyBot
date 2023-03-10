@@ -1,5 +1,5 @@
-import { config } from "../config/config.js";
 import { Event } from "djs-handlers";
+import { config } from "../config/config.js";
 
 export default new Event("guildMemberAdd", (member) => {
   if (!config.autoJoinRole) return;
@@ -11,7 +11,7 @@ export default new Event("guildMemberAdd", (member) => {
   }
 
   try {
-    member.roles.add(config.autoJoinRole);
+    member.roles.add(autorole);
 
     console.log(
       `Automatically assigned role ${autorole.name} to ${member.user.username}.`
