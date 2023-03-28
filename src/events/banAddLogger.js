@@ -49,7 +49,7 @@ export default new Event("guildBanAdd", async (guildBan) => {
     const banEmbed = new kickBanEmbedBuilder(
       guildBan.user,
       executingMember,
-      "ban",
+      "Ban",
       guildBan.reason
     );
 

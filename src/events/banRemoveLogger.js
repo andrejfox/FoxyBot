@@ -50,7 +50,7 @@ export default new Event("guildBanRemove", async (guildUnban) => {
     const unbanEmbed = new kickBanEmbedBuilder(
       guildUnban.user,
       executingMember,
-      "unban",
+      "Unban",
       guildUnban.reason
     );
 
