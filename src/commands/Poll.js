@@ -38,85 +38,104 @@ export default new Command({
     },
   ],
   execute: async ({ interaction, args }) => {
-    let question = args.getString("question");
-    const answerType = args.getString("type");
+    try {
+      let question = args.getString("question");
+      const answerType = args.getString("type");
 
-    if (!question || !answerType) {
-      return interaction.reply({
-        content: "Please specify a question and an answer type!",
-        ephemeral: true,
-      });
-    }
+      if (!question || !answerType) {
+        return interaction.reply({
+          content: "Please specify a question and an answer type!",
+          ephemeral: true,
+        });
+      }
 
-    question = !question.endsWith("?") ? question + "?" : question;
+      const messageLength = question.length;
 
-    if (answerType === "yesno") {
-      const emotes = getEmojis(config.pollYesNo, interaction.client);
+      if (messageLength >= 4092) {
+        return interaction.reply({
+          content:
+            "The question is too long! It must be under 4092 characters.",
+          ephemeral: true,
+        });
+      }
 
-      const pollEmbed = new ExtendedEmbedBuilder(interaction.user, {
-        title: question,
-      });
+      question = !question.endsWith("?") ? question + "?" : question;
 
-      for (const emoji of emotes) {
-        if (!emoji) {
-          interaction.reply({
-            content: "Cannot find emojis!",
+      if (answerType === "yesno") {
+        const emotes = getEmojis(config.pollYesNo, interaction.client);
+
+        const content =
+          messageLength > 256
+            ? { description: `**${question}**` }
+            : { title: question };
+
+        const pollEmbed = new ExtendedEmbedBuilder(interaction.user, content);
+
+        for (const emoji of emotes) {
+          if (!emoji) {
+            interaction.reply({
+              content: "Cannot find emojis!",
+              ephemeral: true,
+            });
+
+            return;
+          }
+        }
+
+        const message = await interaction.reply({
+          embeds: [pollEmbed],
+          fetchReply: true,
+        });
+
+        for (const emoji of emotes) {
+          message.react(emoji);
+        }
+      } else {
+        const answers = args.getString("answers");
+
+        if (!answers) {
+          return interaction.reply({
+            content: "Please specify answers!",
             ephemeral: true,
           });
-
-          return;
         }
-      }
 
-      const message = await interaction.reply({
-        embeds: [pollEmbed],
-        fetchReply: true,
-      });
+        const emotes = getEmojis(config.pollNumbers, interaction.client);
 
-      for (const emoji of emotes) {
-        message.react(emoji);
-      }
-    } else {
-      const answers = args.getString("answers");
-
-      if (!answers) {
-        return interaction.reply({
-          content: "Please specify answers!",
-          ephemeral: true,
+        const fields = answers.split(",").map((answer, index) => {
+          return {
+            name: `${emotes[index]}  ${answer.trim()}`,
+            value: "\u200b",
+          };
         });
-      }
 
-      const emotes = getEmojis(config.pollNumbers, interaction.client);
+        if (fields.length > 10) {
+          return interaction.reply({
+            content: "You can only have 10 answers max!",
+            ephemeral: true,
+          });
+        }
 
-      const fields = answers.split(",").map((answer, index) => {
-        return {
-          name: `${emotes[index]}  ${answer.trim()}`,
-          value: "\u200b",
-        };
-      });
+        const content =
+          messageLength > 256
+            ? { description: `**${question}**`, fields }
+            : { title: question, fields };
 
-      if (fields.length > 10) {
-        return interaction.reply({
-          content: "You can only have 10 answers max!",
-          ephemeral: true,
+        const pollEmbed = new ExtendedEmbedBuilder(interaction.user, content);
+
+        const message = await interaction.reply({
+          embeds: [pollEmbed],
+          fetchReply: true,
         });
+
+        for (let i = 0; i < fields.length; i++) {
+          message.react(emotes[i]);
+        }
+
+        return;
       }
-
-      const pollEmbed = new ExtendedEmbedBuilder(interaction.user, {
-        title: question,
-        fields,
-      });
-
-      const message = await interaction.reply({
-        embeds: [pollEmbed],
-        fetchReply: true,
-      });
-
-      for (let i = 0; i < fields.length; i++) {
-        message.react(emotes[i]);
-      }
-
-      return;
+    } catch (err) {
+      console.error(`Something went wrong trying to make a poll: ${err}`);
     }
   },
 });
