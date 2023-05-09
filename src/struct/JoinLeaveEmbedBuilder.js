@@ -1,5 +1,4 @@
 import { EmbedBuilder } from "discord.js";
-import { config } from "../config/config.js";
 
 export class JoinLeaveEmbedBuilder extends EmbedBuilder {
   constructor(member, action, data) {
@@ -10,11 +9,7 @@ export class JoinLeaveEmbedBuilder extends EmbedBuilder {
       iconURL: member.user.displayAvatarURL(),
     });
 
-    this.setFooter({
-      text: `${action}`,
-    });
-
-    this.setColor(config.mainEmbedColour);
+    this.setFooter({ text: `${action}` });
 
     this.setTimestamp(Date.now());
   }

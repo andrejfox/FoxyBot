@@ -1,27 +1,12 @@
 import { EmbedBuilder, inlineCode, time } from "discord.js";
-import { config } from "../config/config.js";
 
 export class kickBanEmbedBuilder extends EmbedBuilder {
   constructor(target, executor, action, reason, expiration) {
     super();
 
-    let actionPast;
-
-    switch (action) {
-      case "Kick":
-        actionPast = "Kicked";
-        break;
-      case "Ban":
-        actionPast = "Banned";
-        break;
-      case "Unban":
-        actionPast = "Unbanned";
-        break;
-    }
-
     let descriptionObject = {
       targetId: `**Target ID:** ${inlineCode(target.id)}`,
-      actionMadeAt: `**${actionPast} on:** ${time(
+      actionMadeAt: `**${action} on:** ${time(
         Math.floor(Date.now() / 1000),
         "f"
       )} (${time(Math.floor(Date.now() / 1000), "R")})`,
@@ -46,7 +31,6 @@ export class kickBanEmbedBuilder extends EmbedBuilder {
 
     this.setFooter({
       text: action,
-      iconURL: executor.user.displayAvatarURL(),
     });
 
     this.setTimestamp(Date.now());

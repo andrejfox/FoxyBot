@@ -1,45 +1,36 @@
 import { AuditLogEvent } from "discord.js";
 import { Event } from "djs-handlers";
 import { config } from "../config/config.js";
-import { kickBanEmbedBuilder } from "../struct/kickBanEmbedBuilder.js";
+import { kickBanEmbedBuilder } from "../struct/kickBanUnbanEmbedBuilder.js";
 import { getTextChannelFromID } from "../util/helpers.js";
 
 export default new Event("guildBanRemove", async (guildUnban) => {
   try {
+    const guildName = guildUnban.guild.name;
     console.log(
-      `${guildUnban.user.tag}'s ban was removed from ${guildUnban.user.tag}.`
+      `${guildUnban.user.tag}'s ban was removed from${" " + guildName ?? ""}!`
     );
 
-    if (!config.logChannel) return;
+    if (!config.guildTraficLog) return;
 
-    const unbanLog = await getTextChannelFromID(
+    const logChannel = await getTextChannelFromID(
       guildUnban.guild,
-      config.logChannel
+      config.guildTraficLog
     );
-
-    if (!unbanLog) {
-      return console.error("Cannot find Log Channel.");
-    }
+    if (!logChannel) return console.error("Cannot find Log Channel.");
 
     const fetchedLogs = await guildUnban.guild.fetchAuditLogs({
       limit: 1,
       type: AuditLogEvent.MemberBanRemove,
     });
 
-    const unbanAuditLog = fetchedLogs.entries.first();
-
-    if (!unbanAuditLog) {
-      `Cannot find audit log entry for ${guildUnban.user.tag}.`;
-    }
-
-    const { executor, target, action } = unbanAuditLog;
+    const { executor, target, action, reason } = fetchedLogs.entries.first();
 
     if (!executor || !target || action !== AuditLogEvent.MemberBanRemove) {
       return console.error(
-        "Cannot find executor or target from the Audit Log."
+        "Cannot find executor or target or action from the Audit Log. [Unban]"
       );
     }
-    const executingMember = await guildUnban.guild.members.fetch(executor.id);
 
     if (!target.id === guildUnban.user.id) {
       return console.error(
@@ -47,14 +38,17 @@ export default new Event("guildBanRemove", async (guildUnban) => {
       );
     }
 
+    const executingMember = await guildUnban.guild.members.fetch(executor.id);
+
     const unbanEmbed = new kickBanEmbedBuilder(
       guildUnban.user,
       executingMember,
       "Unban",
-      guildUnban.reason
+      reason
     );
+    unbanEmbed.setColor(0x00ffb7);
 
-    unbanLog.send({ embeds: [unbanEmbed] });
+    logChannel.send({ embeds: [unbanEmbed] });
   } catch (err) {
     console.error(
       `Something went wrong trying to log the unban for ${guildUnban.user.tag}: ${err}`

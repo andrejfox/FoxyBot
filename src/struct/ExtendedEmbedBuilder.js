@@ -1,11 +1,10 @@
 import { EmbedBuilder } from "discord.js";
-import { config } from "../config/config.js";
 
 export class ExtendedEmbedBuilder extends EmbedBuilder {
   constructor(user, data) {
     super(data);
 
-    this.setColor(config.mainEmbedColour);
+    this.setColor(0x000000);
 
     this.setFooter({
       text: `Requested by ${user.username}`,
