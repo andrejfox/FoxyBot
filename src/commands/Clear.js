@@ -13,39 +13,43 @@ export default new Command({
     },
   ],
   execute: async ({ interaction, args }) => {
-    let count = args.getInteger("amount") ?? 1;
+    try {
+      let count = args.getInteger("amount") ?? 1;
 
-    if (count > 100 || count <= 0) {
-      interaction.reply({
-        content: "You can only delete between 1 and 100 messages at a time.",
-        ephemeral: true,
-      });
-    }
-
-    await interaction.channel
-      .bulkDelete(count)
-      .then(() => {
+      if (count > 100 || count <= 0) {
         interaction.reply({
-          content: `Successfully deleted ${count} messages!`,
+          content: "You can only delete between 1 and 100 messages at a time.",
           ephemeral: true,
         });
-      })
-      .catch((err) => {
-        if (
-          err.rawError.message ===
-          "You can only bulk delete messages that are under 14 days old."
-        ) {
+      }
+
+      await interaction.channel
+        .bulkDelete(count)
+        .then(() => {
           interaction.reply({
-            content: err.rawError.message,
+            content: `Successfully deleted ${count} messages!`,
             ephemeral: true,
           });
-        } else {
-          console.error(err);
-          interaction.reply({
-            content: "An error occurred while trying to delete messages.",
-            ephemeral: true,
-          });
-        }
-      });
+        })
+        .catch((err) => {
+          if (
+            err.rawError.message ===
+            "You can only bulk delete messages that are under 14 days old."
+          ) {
+            interaction.reply({
+              content: err.rawError.message,
+              ephemeral: true,
+            });
+          } else {
+            console.error(err);
+            interaction.reply({
+              content: "An error occurred while trying to delete messages.",
+              ephemeral: true,
+            });
+          }
+        });
+    } catch (err) {
+      console.error(`Something went wrong trying to exicute clear.`);
+    }
   },
 });
