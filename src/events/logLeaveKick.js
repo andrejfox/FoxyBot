@@ -1,6 +1,5 @@
 import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { __dirname } from "../util/path.js";
 import { Event } from "djs-handlers";
 import { AuditLogEvent, time, inlineCode } from "discord.js";
 import { config } from "../config/config.js";
@@ -21,7 +20,6 @@ export default new Event("guildMemberRemove", async (member) => {
     );
   }
 
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const data = fs.readFileSync(
     path.join(__dirname, "logKickMemoryID.json"),
     "utf-8"

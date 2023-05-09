@@ -1,6 +1,17 @@
 import dotenv from "dotenv";
+import { __dirname } from "../util/path.js";
+import path from "path";
 
-dotenv.config();
+const envPath = path.join(
+  path.dirname(__dirname),
+  `../.env.${process.env["NODE_ENV"]}`
+);
+
+console.log(`Loading ${process.env["NODE_ENV"]} environment variables...`);
+
+dotenv.config({
+  path: envPath,
+});
 
 /**
  * you can change the emojis in the array to whatever you want (unicode or custom ID)

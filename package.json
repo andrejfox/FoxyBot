@@ -1,5 +1,5 @@
 {
-  "name": "djs-template",
+  "name": "foxy_bot",
   "version": "1.0.0",
   "description": "Template repository to quickstart developing discord bots usind discord.js v14.",
   "main": "src/index.ts",
@@ -8,8 +8,9 @@
   "author": "defnot001",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "foxy": "NODE_ENV=foxy nodemon src/index.js",
+    "pomaranca": "NODE_ENV=pomaranca node src/index.js",
+    "quetta": "NODE_ENV=quetta node src/index.js"
   },
   "dependencies": {
     "discord.js": "^14.7.1",
