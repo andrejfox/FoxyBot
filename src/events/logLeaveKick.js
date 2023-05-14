@@ -1,5 +1,6 @@
 import fs from "fs";
 import { __dirname } from "../util/path.js";
+import path from "path";
 import { Event } from "djs-handlers";
 import { AuditLogEvent, time, inlineCode } from "discord.js";
 import { config } from "../config/config.js";
@@ -21,7 +22,7 @@ export default new Event("guildMemberRemove", async (member) => {
   }
 
   const data = fs.readFileSync(
-    path.join(__dirname, "logKickMemoryID.json"),
+    path.join(__dirname, "../events/logKickMemoryID.json"),
     "utf-8"
   );
   const obj = JSON.parse(data);
@@ -70,7 +71,10 @@ export default new Event("guildMemberRemove", async (member) => {
 
       obj.lastKickID = fetchedLogs.entries.keys().next().value;
       const newData = JSON.stringify(obj);
-      fs.writeFileSync(path.join(__dirname, "logKickMemoryID.json"), newData);
+      fs.writeFileSync(
+        path.join(__dirname, "../events/logKickMemoryID.json"),
+        newData
+      );
       return;
     } catch (err) {
       console.error(
@@ -92,12 +96,9 @@ export default new Event("guildMemberRemove", async (member) => {
 
     const leaveEmbed = new JoinLeaveEmbedBuilder(member, "Leave", {
       description: `**User ID:** ${inlineCode(member.user.id)}
-    **Left on:** ${time(Math.floor(Date.now() / 1000), "f")} (${time(
+      **Joined:** ${time(member.joinedAt, "f")} (${time(member.joinedAt, "R")})
+      **Left:** ${time(Math.floor(Date.now() / 1000), "f")} (${time(
         Math.floor(Date.now() / 1000),
-        "R"
-      )})
-    **Created on:** ${time(member.user.createdAt, "f")} (${time(
-        member.user.createdAt,
         "R"
       )})`,
     });

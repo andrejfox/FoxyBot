@@ -6,11 +6,11 @@ export class kickBanEmbedBuilder extends EmbedBuilder {
 
     let descriptionObject = {
       targetId: `**Target ID:** ${inlineCode(target.id)}`,
-      actionMadeAt: `**${action} on:** ${time(
+      executor: `**Executor:** <@${executor.user.id}>`,
+      actionMadeAt: `**${action}:** ${time(
         Math.floor(Date.now() / 1000),
-        "f"
-      )} (${time(Math.floor(Date.now() / 1000), "R")})`,
-      executor: `**Executor:** ${executor.user.tag}`,
+        "R"
+      )}`,
       reason: undefined,
       expiration: undefined,
     };

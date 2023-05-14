@@ -19,7 +19,7 @@ export default new Event("guildMemberAdd", async (member) => {
 
     const joinEmbed = new JoinLeaveEmbedBuilder(member, "Join", {
       description: `**User ID:** ${inlineCode(member.user.id)}
-    **Joined on:** ${time(member.joinedAt, "f")} (${time(member.joinedAt, "R")})
+    **Joined:** ${time(member.joinedAt, "R")}
     **Created on:** ${time(member.user.createdAt, "f")} (${time(
         member.user.createdAt,
         "R"
