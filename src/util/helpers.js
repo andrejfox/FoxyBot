@@ -1,5 +1,3 @@
-import { time } from "discord.js";
-
 function isNumber(str) {
   return /^\d+$/.test(str);
 }
